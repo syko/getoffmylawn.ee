@@ -35,7 +35,7 @@ class Index extends React.Component<{}, { imageLoaded: boolean }> {
           <meta property="og:title" content="Get Off My Lawn Entertainment" />
           <meta property="og:image" content="http://getoffmylawn.ee/lawn.jpg" />
           <meta name="description" property="og:description" content="Next-gen AAA Game Studio" />
-          <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"></meta>
+          <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no" />
         </Head>
         <h1 className={styles.title}>Get Off My Lawn Entertainment</h1>
         <canvas ref={this.canvas} width="948" height="300" className={styles.inputCanvas}></canvas>

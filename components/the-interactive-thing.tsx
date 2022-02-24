@@ -11,20 +11,22 @@ type ImageDataProps = {
 }
 
 type PointerCollection = {
-  mouse: Vector2;
+  mouse?: Vector2;
   [index: number]: Vector2;
+}
+
+function isTouchDevice() {
+  return (('ontouchstart' in window) ||
+     (navigator.maxTouchPoints > 0) ||
+     ((navigator as any).msMaxTouchPoints > 0));
 }
 
 class TheInteractiveThing extends React.Component<ImageDataProps> {
   container: RefObject<HTMLDivElement>;
   windowWidth: number = 0;
   windowHeight: number = 0;
-  pointers: PointerCollection = {
-    'mouse': new THREE.Vector2(0, 0)
-  }
-  lastPointers: PointerCollection = {
-    'mouse': new THREE.Vector2(0, 0)
-  }
+  pointers: PointerCollection = {};
+  lastPointers: PointerCollection = {};
   clock: Clock;
   camera!: OrthographicCamera;
   scene!: Scene;
@@ -39,8 +41,12 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
   constructor(props: {imageData: ImageData}) {
     super(props);
     this.container = React.createRef();
-    this.populateInfluenceRanges();
     this.clock = new THREE.Clock();
+    this.populateInfluenceRanges();
+    if (!isTouchDevice()) {
+      this.pointers['mouse'] = new THREE.Vector2(0, 0);
+      this.lastPointers['mouse'] = new THREE.Vector2(0, 0);
+    }
   }
 
   componentDidMount() {
@@ -151,7 +157,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
   }
 
   addEventListeners() {
-    this.container.current!.addEventListener('pointermove', this.onMouseMove);
+    if(!isTouchDevice()) this.container.current!.addEventListener('pointermove', this.onMouseMove);
     this.container.current!.addEventListener('touchstart', this.onTouchMove);
     this.container.current!.addEventListener('touchmove', this.onTouchMove);
     this.container.current!.addEventListener('touchend', this.onTouchEnd);
@@ -160,7 +166,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
   }
 
   removeEventListeners() {
-    this.container.current!.removeEventListener('pointermove', this.onMouseMove);
+    if(!isTouchDevice()) this.container.current!.removeEventListener('pointermove', this.onMouseMove);
     this.container.current!.removeEventListener('touchstart', this.onTouchMove);
     this.container.current!.removeEventListener('touchmove', this.onTouchMove);
     this.container.current!.removeEventListener('touchend', this.onTouchEnd);
@@ -174,8 +180,8 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
 
   onMouseMove = (e: PointerEvent) => {
     if (!e.isPrimary) return;
-    this.lastPointers.mouse.set(this.pointers.mouse.x, this.pointers.mouse.y);
-    this.pointers.mouse.set(e.clientX, this.windowHeight - e.clientY);
+    this.lastPointers.mouse!.set(this.pointers.mouse!.x, this.pointers.mouse!.y);
+    this.pointers.mouse!.set(e.clientX, this.windowHeight - e.clientY);
   }
 
   ensureTouchExists(id: number, x: number, y: number) {
@@ -185,6 +191,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
   }
 
   onTouchStart = (e: TouchEvent) => {
+    e.preventDefault();
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
       const id = touch.identifier;
@@ -194,6 +201,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
   }
 
   onTouchMove = (e: TouchEvent) => {
+    e.preventDefault();
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
       const id = touch.identifier;
@@ -204,6 +212,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
   }
 
   onTouchEnd = (e: TouchEvent) => {
+    e.preventDefault();
     for (let i = 0; i < e.changedTouches.length; i++) {
       const id = e.changedTouches[i].identifier;
       delete this.pointers[id];
@@ -228,14 +237,14 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
     const tickSize = this.clock.getDelta() * 144;
     for (let k in this.pointers) {
       let x, y, tx, ty, vx, vy;
-      const mousePosAdjusted = this.pointers[k].clone().sub(parentOffset);
+      const pointerPosAdjusted = this.pointers[k].clone().sub(parentOffset);
       const pos: Vector2 = new THREE.Vector2(0, 0);
       let particleDistance: Vector2 = new THREE.Vector2(0, 0);
       let movement: Vector2 = new THREE.Vector2(0, 0);
       // Update targePositions
       for (let i = 0; i < positions.count; i++) {
         pos.set(positions.getX(i), positions.getY(i));
-        particleDistance = mousePosAdjusted.clone().sub(pos);
+        particleDistance = pointerPosAdjusted.clone().sub(pos);
         if (particleDistance.lengthSq() < this.influenceRanges[i % this.influenceRanges.length]) {
           movement = particleDistance.clone().normalize().multiplyScalar(0 + Math.random() * 165 - particleDistance.length());
           this.targetPositions.setXY(i, pos.x - movement.x, pos.y - movement.y);
