@@ -28,7 +28,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
   camera!: OrthographicCamera;
   scene!: Scene;
   renderer!: WebGLRenderer;
-  stats!: Stats;
+  stats!: {dom:HTMLElement; update: () => void};
   particles!: Points;
   originalPositions!: BufferAttribute;
   targetPositions!: BufferAttribute;
@@ -47,9 +47,6 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
     this.createParticles();
     // this.createBackground();
     this.updateSize();
-
-    this.container.current!.appendChild(this.renderer.domElement);
-    this.container.current!.appendChild(this.stats.dom);
 
     this.addEventListeners();
 
@@ -87,9 +84,12 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
     this.camera = new THREE.OrthographicCamera(0, window.innerWidth, window.innerHeight, 0, 0, 100);
     this.camera.position.z = 100;
 
-    this.stats = new (Stats as any)();
 
     this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.container.current!.appendChild(this.renderer.domElement);
+
+    this.stats = new (Stats as any)();
+    this.container.current!.appendChild(this.stats.dom);
   }
 
   teardownThree() {
