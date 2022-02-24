@@ -1,6 +1,6 @@
 import React, { RefObject } from 'react'
 import * as THREE from 'three'
-import { WebGLRenderer, OrthographicCamera, Scene, BufferGeometry, Points, PointsMaterial, Color, BufferAttribute, Vector2, Vector3, Texture } from 'three'
+import { WebGLRenderer, OrthographicCamera, Scene, Points, BufferAttribute, Vector2, Clock } from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
 
 const CONTENTFUL_PIXEL_THRESHOLD = 6;
@@ -25,6 +25,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
   lastPointers: PointerCollection = {
     'mouse': new THREE.Vector2(0, 0)
   }
+  clock: Clock;
   camera!: OrthographicCamera;
   scene!: Scene;
   renderer!: WebGLRenderer;
@@ -39,6 +40,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
     super(props);
     this.container = React.createRef();
     this.populateInfluenceRanges();
+    this.clock = new THREE.Clock();
   }
 
   componentDidMount() {
@@ -223,6 +225,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
   updateParticles() {
     const positions = this.particles.geometry.attributes.position;
     const parentOffset: Vector2 = new THREE.Vector2(this.particles.position.x, this.particles.position.y);
+    const tickSize = this.clock.getDelta() * 144;
     for (let k in this.pointers) {
       let x, y, tx, ty, vx, vy;
       const mousePosAdjusted = this.pointers[k].clone().sub(parentOffset);
@@ -246,10 +249,10 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
         vy = this.velocities.getY(i);
         tx = this.targetPositions.getX(i);
         ty = this.targetPositions.getY(i);
-        vx = (vx + (tx - x) * 0.02) * 0.91;
-        vy = (vy + (ty - y) * 0.02) * 0.91;
+        vx = (vx + (tx - x) * 0.02) * 0.89;
+        vy = (vy + (ty - y) * 0.02) * 0.89;
         this.velocities.setXY(i, vx, vy);
-        positions.setXY(i, x + vx, y + vy);
+        positions.setXY(i, x + vx * tickSize, y + vy * tickSize);
       }
     }
   }
