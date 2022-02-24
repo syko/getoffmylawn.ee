@@ -32,7 +32,9 @@ class Index extends React.Component<{}, { imageLoaded: boolean }> {
       <main>
         <Head>
           <title>Get Off My Lawn Entertainment - Next-gen AAA Game Studio</title>
-          <meta name="description" content="Next-gen AAA Game Studio" />
+          <meta property="og:title" content="Get Off My Lawn Entertainment" />
+          <meta property="og:image" content="http://getoffmylawn.ee/lawn.jpg" />
+          <meta name="description" property="og:description" content="Next-gen AAA Game Studio" />
           <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"></meta>
         </Head>
         <h1 className={styles.title}>Get Off My Lawn Entertainment</h1>
