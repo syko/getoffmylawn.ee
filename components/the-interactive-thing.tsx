@@ -235,13 +235,12 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
     const positions = this.particles.geometry.attributes.position;
     const parentOffset: Vector2 = new THREE.Vector2(this.particles.position.x, this.particles.position.y);
     const tickSize = this.clock.getDelta() * 144;
+    // Update targePositions
     for (let k in this.pointers) {
-      let x, y, tx, ty, vx, vy;
       const pointerPosAdjusted = this.pointers[k].clone().sub(parentOffset);
       const pos: Vector2 = new THREE.Vector2(0, 0);
       let particleDistance: Vector2 = new THREE.Vector2(0, 0);
       let movement: Vector2 = new THREE.Vector2(0, 0);
-      // Update targePositions
       for (let i = 0; i < positions.count; i++) {
         pos.set(positions.getX(i), positions.getY(i));
         particleDistance = pointerPosAdjusted.clone().sub(pos);
@@ -250,19 +249,20 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
           this.targetPositions.setXY(i, pos.x - movement.x, pos.y - movement.y);
         } else this.targetPositions.setXY(i, this.originalPositions.getX(i), this.originalPositions.getY(i));
       }
-      // Update velocities based on target positions and current velocities and update positions
-      for (let i = 0; i < positions.count; i++) {
-        x = positions.getX(i);
-        y = positions.getY(i);
-        vx = this.velocities.getX(i);
-        vy = this.velocities.getY(i);
-        tx = this.targetPositions.getX(i);
-        ty = this.targetPositions.getY(i);
-        vx = (vx + (tx - x) * 0.02) * 0.89;
-        vy = (vy + (ty - y) * 0.02) * 0.89;
-        this.velocities.setXY(i, vx, vy);
-        positions.setXY(i, x + vx * tickSize, y + vy * tickSize);
-      }
+    }
+    // Update velocities based on target positions and current velocities and update positions
+    let x, y, tx, ty, vx, vy;
+    for (let i = 0; i < positions.count; i++) {
+      x = positions.getX(i);
+      y = positions.getY(i);
+      vx = this.velocities.getX(i);
+      vy = this.velocities.getY(i);
+      tx = this.targetPositions.getX(i);
+      ty = this.targetPositions.getY(i);
+      vx = (vx + (tx - x) * 0.02) * 0.89;
+      vy = (vy + (ty - y) * 0.02) * 0.89;
+      this.velocities.setXY(i, vx, vy);
+      positions.setXY(i, x + vx * tickSize, y + vy * tickSize);
     }
   }
 
