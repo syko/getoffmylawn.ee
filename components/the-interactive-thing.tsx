@@ -231,14 +231,14 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
       const mousePosAdjusted = this.pointers[k].clone().sub(parentOffset);
       const pos: Vector2 = new THREE.Vector2(0, 0);
       let particleDistance: Vector2 = new THREE.Vector2(0, 0);
-      let moveAmount: Vector2 = new THREE.Vector2(0, 0);
+      let movement: Vector2 = new THREE.Vector2(0, 0);
       // Update targePositions
       for (let i = 0; i < positions.count; i++) {
         pos.set(positions.getX(i), positions.getY(i));
         particleDistance = mousePosAdjusted.clone().sub(pos);
         if (particleDistance.lengthSq() < this.influenceRanges[i % this.influenceRanges.length]) {
-          moveAmount = particleDistance.clone().normalize().multiplyScalar(0 + Math.random() * 165 - particleDistance.length());
-          this.targetPositions.setXY(i, pos.x - moveAmount.x, pos.y - moveAmount.y);
+          movement = particleDistance.clone().normalize().multiplyScalar(0 + Math.random() * 165 - particleDistance.length());
+          this.targetPositions.setXY(i, pos.x - movement.x, pos.y - movement.y);
         } else this.targetPositions.setXY(i, this.originalPositions.getX(i), this.originalPositions.getY(i));
       }
       // Update velocities based on target positions and current velocities and update positions
