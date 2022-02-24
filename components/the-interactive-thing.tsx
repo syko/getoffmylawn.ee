@@ -4,6 +4,8 @@ import { WebGLRenderer, OrthographicCamera, Scene, Points, BufferAttribute, Vect
 // import Stats from 'three/examples/jsm/libs/stats.module'
 
 const CONTENTFUL_PIXEL_THRESHOLD = 6;
+const DEFAULT_REPEL_DISTANCE = 165;
+const VACUUM_REPEL_DISTANCE = 30;
 
 export type PixelData = Array<Float32Array>;
 type ImageDataProps = {
@@ -25,6 +27,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
   container: RefObject<HTMLDivElement>;
   windowWidth: number = 0;
   windowHeight: number = 0;
+  repelDistance: number = DEFAULT_REPEL_DISTANCE;
   pointers: PointerCollection = {};
   lastPointers: PointerCollection = {};
   clock: Clock;
@@ -157,7 +160,11 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
   }
 
   addEventListeners() {
-    if(!isTouchDevice()) this.container.current!.addEventListener('pointermove', this.onMouseMove);
+    if (!isTouchDevice()) {
+      this.container.current!.addEventListener('pointermove', this.onMouseMove);
+      this.container.current!.addEventListener('pointerdown', this.onMouseDown);
+      this.container.current!.addEventListener('pointerup', this.onMouseUp);
+    }
     this.container.current!.addEventListener('touchstart', this.onTouchMove);
     this.container.current!.addEventListener('touchmove', this.onTouchMove);
     this.container.current!.addEventListener('touchend', this.onTouchEnd);
@@ -166,7 +173,11 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
   }
 
   removeEventListeners() {
-    if(!isTouchDevice()) this.container.current!.removeEventListener('pointermove', this.onMouseMove);
+    if (!isTouchDevice()) {
+      this.container.current!.removeEventListener('pointermove', this.onMouseMove);
+      this.container.current!.removeEventListener('pointerdown', this.onMouseDown);
+      this.container.current!.removeEventListener('pointerup', this.onMouseUp);
+    }
     this.container.current!.removeEventListener('touchstart', this.onTouchMove);
     this.container.current!.removeEventListener('touchmove', this.onTouchMove);
     this.container.current!.removeEventListener('touchend', this.onTouchEnd);
@@ -182,6 +193,16 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
     if (!e.isPrimary) return;
     this.lastPointers.mouse!.set(this.pointers.mouse!.x, this.pointers.mouse!.y);
     this.pointers.mouse!.set(e.clientX, this.windowHeight - e.clientY);
+  }
+
+  onMouseDown = (e: PointerEvent) => {
+    if (!e.isPrimary) return;
+    this.repelDistance = VACUUM_REPEL_DISTANCE;
+  }
+
+  onMouseUp = (e: PointerEvent) => {
+    if (!e.isPrimary) return;
+    this.repelDistance = DEFAULT_REPEL_DISTANCE;
   }
 
   ensureTouchExists(id: number, x: number, y: number) {
@@ -249,7 +270,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
         pos.set(positions.getX(i), positions.getY(i));
         particleDistance = pointerPosAdjusted.clone().sub(pos);
         if (particleDistance.lengthSq() < this.influenceRanges[i % this.influenceRanges.length]) {
-          movement = particleDistance.clone().normalize().multiplyScalar(0 + Math.random() * 165 - particleDistance.length());
+          movement = particleDistance.clone().normalize().multiplyScalar(Math.random() * this.repelDistance - particleDistance.length());
           this.targetPositions.setXY(i, pos.x - movement.x, pos.y - movement.y);
         }
       }
