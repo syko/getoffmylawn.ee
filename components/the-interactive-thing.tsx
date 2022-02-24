@@ -235,7 +235,11 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
     const positions = this.particles.geometry.attributes.position;
     const parentOffset: Vector2 = new THREE.Vector2(this.particles.position.x, this.particles.position.y);
     const tickSize = this.clock.getDelta() * 144;
-    // Update targePositions
+    // By default target original positions
+    for (let i = 0; i < positions.count; i++) {
+      this.targetPositions.setXY(i, this.originalPositions.getX(i), this.originalPositions.getY(i));
+    }
+    // Recalc target position if in inflence range of any pointer
     for (let k in this.pointers) {
       const pointerPosAdjusted = this.pointers[k].clone().sub(parentOffset);
       const pos: Vector2 = new THREE.Vector2(0, 0);
@@ -247,7 +251,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
         if (particleDistance.lengthSq() < this.influenceRanges[i % this.influenceRanges.length]) {
           movement = particleDistance.clone().normalize().multiplyScalar(0 + Math.random() * 165 - particleDistance.length());
           this.targetPositions.setXY(i, pos.x - movement.x, pos.y - movement.y);
-        } else this.targetPositions.setXY(i, this.originalPositions.getX(i), this.originalPositions.getY(i));
+        }
       }
     }
     // Update velocities based on target positions and current velocities and update positions
