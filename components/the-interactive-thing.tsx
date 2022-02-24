@@ -1,7 +1,7 @@
 import React, { RefObject } from 'react'
 import * as THREE from 'three'
 import { WebGLRenderer, OrthographicCamera, Scene, Points, BufferAttribute, Vector2, Clock } from 'three'
-import Stats from 'three/examples/jsm/libs/stats.module'
+// import Stats from 'three/examples/jsm/libs/stats.module'
 
 const CONTENTFUL_PIXEL_THRESHOLD = 6;
 
@@ -90,8 +90,8 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.container.current!.appendChild(this.renderer.domElement);
 
-    this.stats = new (Stats as any)();
-    this.container.current!.appendChild(this.stats.dom);
+    // this.stats = new (Stats as any)();
+    // this.container.current!.appendChild(this.stats.dom);
   }
 
   teardownThree() {
