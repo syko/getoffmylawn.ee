@@ -130,7 +130,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
     }
     this.originalPositions = new THREE.BufferAttribute(positions.slice(), 3);
     this.targetPositions = new THREE.BufferAttribute(positions.slice(), 3);
-    this.velocities = new THREE.BufferAttribute(new Float32Array(positions.length), 3);
+    this.velocities = new THREE.BufferAttribute(new Float32Array(positions.length), 2);
     return positions;
   }
 
