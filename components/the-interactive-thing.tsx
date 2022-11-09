@@ -249,12 +249,14 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
     this.camera.right = w;
     this.renderer.setSize(w, h);
     this.particles.position.set(w / 2, h / 2, 2);
+    this.particles.scale.setScalar(Math.min(1, w / this.props.imageData.width));
     this.camera.updateProjectionMatrix();
   }
 
   updateParticles() {
     const positions = this.particles.geometry.attributes.position;
     const parentOffset: Vector2 = new THREE.Vector2(this.particles.position.x, this.particles.position.y);
+    const parentScale: Vector2 = new THREE.Vector2(this.particles.scale.x, this.particles.scale.y);
     const tickSize = this.clock.getDelta() * 144;
     // By default target original positions
     for (let i = 0; i < positions.count; i++) {
@@ -262,7 +264,7 @@ class TheInteractiveThing extends React.Component<ImageDataProps> {
     }
     // Recalc target position if in inflence range of any pointer
     for (let k in this.pointers) {
-      const pointerPosAdjusted = this.pointers[k].clone().sub(parentOffset);
+      const pointerPosAdjusted = this.pointers[k].clone().sub(parentOffset).divide(parentScale);
       const pos: Vector2 = new THREE.Vector2(0, 0);
       let particleDistance: Vector2 = new THREE.Vector2(0, 0);
       let movement: Vector2 = new THREE.Vector2(0, 0);
